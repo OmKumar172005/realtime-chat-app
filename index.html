@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>My Chat App</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<div class="chat-container">
+
+   <div class="chat-header">
+    <h1>My Chat App</h1>
+    <p id="online-status">Connecting...</p>
+</div>
+
+    <!-- Select sender -->
+    <div class="sender-area">
+        <button onclick="sendAsYou()">You</button>
+        <button onclick="sendAsFriend()">Friend</button>
+    </div>
+
+    <div id="chat-box">
+       
+    </div>
+    <div id="typing-indicator"></div>
+
+    <div class="input-area">
+        <input
+            type="text"
+            id="message"
+            placeholder="Type a message..."
+        >
+
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+
+
+</body>
+</html>
