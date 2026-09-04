@@ -1,11 +1,57 @@
-const socket = io();
+const socket = io({
+    transports: ["websocket"]
+});
 
 // ===============================
 // Current User
 // ===============================
 
 let currentUser =
-    localStorage.getItem("chatUser") || "You";
+    localStorage.getItem("chatUser") || "";
+
+
+// ===============================
+// Start Chat
+// ===============================
+
+function startChat() {
+
+    const usernameInput =
+        document.getElementById("username");
+
+    const username =
+        usernameInput.value.trim();
+
+    if (username === "") {
+
+        alert("Please enter your name.");
+
+        return;
+    }
+
+    currentUser = username;
+
+    localStorage.setItem(
+        "chatUser",
+        currentUser
+    );
+
+    document.getElementById(
+        "name-screen"
+    ).style.display = "none";
+
+    document.getElementById(
+        "chat-container"
+    ).style.display = "flex";
+
+    socket.emit(
+        "setUser",
+        currentUser
+    );
+
+    loadMessages();
+}
+
 
 // ===============================
 // Online Status
@@ -18,99 +64,34 @@ function updateOnlineStatus(users) {
             "online-status"
         );
 
-    const otherUser =
-        currentUser === "You"
-            ? "Friend"
-            : "You";
-
-    if (users.includes(otherUser)) {
+    if (!currentUser) {
 
         status.textContent =
-            `${otherUser} is online`;
+            "Please enter your name";
+
+        return;
+    }
+
+    const otherUsers =
+        users.filter(
+            user => user !== currentUser
+        );
+
+    if (otherUsers.length > 0) {
+
+        status.textContent =
+            `${otherUsers.join(", ")} is online`;
 
     }
     else {
 
         status.textContent =
-            `${otherUser} is offline`;
+            "No other user online";
 
     }
 
 }
 
-// ===============================
-// Sender Buttons
-// ===============================
-
-function updateSenderButtons() {
-
-    const buttons =
-        document.querySelectorAll(
-            ".sender-area button"
-        );
-
-    buttons.forEach(
-        (button) => {
-
-            button.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-    if (currentUser === "You") {
-
-        buttons[0].classList.add(
-            "active"
-        );
-
-    }
-    else {
-
-        buttons[1].classList.add(
-            "active"
-        );
-
-    }
-
-}
-
-function sendAsYou() {
-
-    currentUser = "You";
-
-    localStorage.setItem(
-        "chatUser",
-        currentUser
-    );
-
-    updateSenderButtons();
-
-    socket.emit(
-        "setUser",
-        currentUser
-    );
-
-}
-
-function sendAsFriend() {
-
-    currentUser = "Friend";
-
-    localStorage.setItem(
-        "chatUser",
-        currentUser
-    );
-
-    updateSenderButtons();
-
-    socket.emit(
-        "setUser",
-        currentUser
-    );
-
-}
 
 // ===============================
 // Create Message
@@ -130,6 +111,7 @@ function createMessageElement(item) {
             ? "message sent"
             : "message received";
 
+
     // ===============================
     // Message Text
     // ===============================
@@ -145,6 +127,7 @@ function createMessageElement(item) {
         ": " +
         item.message;
 
+
     // ===============================
     // Message Bottom
     // ===============================
@@ -154,6 +137,7 @@ function createMessageElement(item) {
 
     messageBottom.className =
         "message-bottom";
+
 
     // ===============================
     // Time
@@ -180,6 +164,7 @@ function createMessageElement(item) {
     messageBottom.appendChild(
         messageTime
     );
+
 
     // ===============================
     // Status
@@ -228,6 +213,7 @@ function createMessageElement(item) {
 
     }
 
+
     // ===============================
     // Delete Button
     // ===============================
@@ -254,6 +240,7 @@ function createMessageElement(item) {
 
         };
 
+
     // ===============================
     // Add Elements
     // ===============================
@@ -273,6 +260,7 @@ function createMessageElement(item) {
     return message;
 }
 
+
 // ===============================
 // Send Message
 // ===============================
@@ -288,6 +276,15 @@ async function sendMessage() {
         input.value.trim();
 
     if (text === "") {
+        return;
+    }
+
+    if (!currentUser) {
+
+        alert(
+            "Please enter your name first."
+        );
+
         return;
     }
 
@@ -358,6 +355,7 @@ async function sendMessage() {
 
 }
 
+
 // ===============================
 // Delete Message
 // ===============================
@@ -415,6 +413,7 @@ async function deleteMessage(
 
 }
 
+
 // ===============================
 // Mark Message Read
 // ===============================
@@ -428,11 +427,16 @@ function markMessageAsRead(messageId) {
 
 }
 
+
 // ===============================
 // Load Messages
 // ===============================
 
 async function loadMessages() {
+
+    if (!currentUser) {
+        return;
+    }
 
     try {
 
@@ -463,6 +467,7 @@ async function loadMessages() {
                     messageElement
                 );
 
+
                 // Other user's message
                 if (
                     item.sender !== currentUser
@@ -481,8 +486,7 @@ async function loadMessages() {
 
                     }
 
-                    // Then mark read because
-                    // chat is currently open
+                    // Then mark read
                     if (
                         item.status !==
                         "read"
@@ -514,6 +518,7 @@ async function loadMessages() {
 
 }
 
+
 // ===============================
 // Receive Real-Time Message
 // ===============================
@@ -521,6 +526,10 @@ async function loadMessages() {
 socket.on(
     "receiveMessage",
     function (item) {
+
+        if (!currentUser) {
+            return;
+        }
 
         const chatBox =
             document.getElementById(
@@ -548,6 +557,7 @@ socket.on(
 
         chatBox.scrollTop =
             chatBox.scrollHeight;
+
 
         // ===============================
         // Received Message
@@ -579,6 +589,7 @@ socket.on(
 
     }
 );
+
 
 // ===============================
 // Message Status Update
@@ -635,6 +646,7 @@ socket.on(
     }
 );
 
+
 // ===============================
 // Connection
 // ===============================
@@ -648,13 +660,18 @@ socket.on(
             socket.id
         );
 
-        socket.emit(
-            "setUser",
-            currentUser
-        );
+        if (currentUser) {
+
+            socket.emit(
+                "setUser",
+                currentUser
+            );
+
+        }
 
     }
 );
+
 
 // ===============================
 // Online Users
@@ -671,6 +688,7 @@ socket.on(
     }
 );
 
+
 // ===============================
 // Typing Indicator
 // ===============================
@@ -678,6 +696,7 @@ socket.on(
 let typingTimer;
 
 let isTyping = false;
+
 
 function startTyping() {
 
@@ -703,6 +722,7 @@ function startTyping() {
 
 }
 
+
 function stopTyping() {
 
     if (isTyping) {
@@ -723,6 +743,7 @@ function stopTyping() {
 
 }
 
+
 function clearTypingIndicator() {
 
     const indicator =
@@ -730,9 +751,15 @@ function clearTypingIndicator() {
             "typing-indicator"
         );
 
-    indicator.textContent = "";
+    if (indicator) {
+
+        indicator.textContent =
+            "";
+
+    }
 
 }
+
 
 socket.on(
     "userTyping",
@@ -743,11 +770,16 @@ socket.on(
                 "typing-indicator"
             );
 
-        indicator.textContent =
-            `${username} is typing...`;
+        if (indicator) {
+
+            indicator.textContent =
+                `${username} is typing...`;
+
+        }
 
     }
 );
+
 
 socket.on(
     "userStoppedTyping",
@@ -757,6 +789,7 @@ socket.on(
 
     }
 );
+
 
 // ===============================
 // Input
@@ -787,6 +820,7 @@ messageInput.addEventListener(
     }
 );
 
+
 // ===============================
 // Enter to Send
 // ===============================
@@ -808,11 +842,48 @@ messageInput.addEventListener(
     }
 );
 
+
+// ===============================
+// Username Enter Key
+// ===============================
+
+const usernameInput =
+    document.getElementById(
+        "username"
+    );
+
+usernameInput.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+            startChat();
+
+        }
+
+    }
+);
+
+
 // ===============================
 // Page Load
 // ===============================
 
-updateSenderButtons();
+if (currentUser) {
 
-loadMessages();
+    document.getElementById(
+        "name-screen"
+    ).style.display = "none";
 
+    document.getElementById(
+        "chat-container"
+    ).style.display = "flex";
+
+    loadMessages();
+
+}
