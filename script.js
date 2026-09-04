@@ -2,12 +2,12 @@ const socket = io({
     transports: ["websocket"]
 });
 
+
 // ===============================
 // Current User
 // ===============================
 
-let currentUser =
-    localStorage.getItem("chatUser") || "";
+let currentUser = "";
 
 
 // ===============================
@@ -23,33 +23,26 @@ function startChat() {
         usernameInput.value.trim();
 
     if (username === "") {
-
         alert("Please enter your name.");
-
         return;
     }
 
     currentUser = username;
 
-    localStorage.setItem(
-        "chatUser",
-        currentUser
-    );
+    // Hide name screen
+    document.getElementById("name-screen").style.display = "none";
 
-    document.getElementById(
-        "name-screen"
-    ).style.display = "none";
+    // Show chat
+    document.getElementById("chat-container").style.display = "flex";
 
-    document.getElementById(
-        "chat-container"
-    ).style.display = "flex";
+    // Tell server who joined
+    socket.emit("setUser", currentUser);
 
-    socket.emit(
-        "setUser",
-        currentUser
-    );
-
+    // Load previous messages
     loadMessages();
+
+    // Focus message box
+    document.getElementById("message").focus();
 }
 
 
@@ -60,36 +53,27 @@ function startChat() {
 function updateOnlineStatus(users) {
 
     const status =
-        document.getElementById(
-            "online-status"
-        );
+        document.getElementById("online-status");
 
     if (!currentUser) {
-
-        status.textContent =
-            "Please enter your name";
-
+        status.textContent = "Enter your name to chat";
         return;
     }
 
     const otherUsers =
-        users.filter(
-            user => user !== currentUser
-        );
+        users.filter(user => user !== currentUser);
 
     if (otherUsers.length > 0) {
 
         status.textContent =
-            `${otherUsers.join(", ")} is online`;
+            `${otherUsers.join(", ")} ${otherUsers.length === 1 ? "is" : "are"} online`;
 
-    }
-    else {
+    } else {
 
         status.textContent =
             "No other user online";
 
     }
-
 }
 
 
@@ -102,10 +86,9 @@ function createMessageElement(item) {
     const message =
         document.createElement("div");
 
-    message.dataset.messageId =
-        item._id;
+    message.dataset.messageId = item._id;
 
-    // Sent / Received
+    // Sent or received
     message.className =
         item.sender === currentUser
             ? "message sent"
@@ -123,9 +106,7 @@ function createMessageElement(item) {
         "message-text";
 
     messageText.textContent =
-        item.sender +
-        ": " +
-        item.message;
+        item.sender + ": " + item.message;
 
 
     // ===============================
@@ -147,13 +128,10 @@ function createMessageElement(item) {
         new Date(item.createdAt);
 
     const formattedTime =
-        time.toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+        time.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
 
     const messageTime =
         document.createElement("small");
@@ -161,18 +139,14 @@ function createMessageElement(item) {
     messageTime.textContent =
         formattedTime;
 
-    messageBottom.appendChild(
-        messageTime
-    );
+    messageBottom.appendChild(messageTime);
 
 
     // ===============================
     // Status
     // ===============================
 
-    if (
-        item.sender === currentUser
-    ) {
+    if (item.sender === currentUser) {
 
         const messageStatus =
             document.createElement("span");
@@ -180,37 +154,23 @@ function createMessageElement(item) {
         messageStatus.className =
             "message-status";
 
-        if (
-            item.status === "read"
-        ) {
+        if (item.status === "read") {
 
-            messageStatus.textContent =
-                "✓✓";
+            messageStatus.textContent = "✓✓";
 
-            messageStatus.classList.add(
-                "read"
-            );
+            messageStatus.classList.add("read");
 
-        }
-        else if (
-            item.status === "delivered"
-        ) {
+        } else if (item.status === "delivered") {
 
-            messageStatus.textContent =
-                "✓✓";
+            messageStatus.textContent = "✓✓";
 
-        }
-        else {
+        } else {
 
-            messageStatus.textContent =
-                "✓";
+            messageStatus.textContent = "✓";
 
         }
 
-        messageBottom.appendChild(
-            messageStatus
-        );
-
+        messageBottom.appendChild(messageStatus);
     }
 
 
@@ -221,8 +181,7 @@ function createMessageElement(item) {
     const deleteButton =
         document.createElement("button");
 
-    deleteButton.textContent =
-        "🗑️";
+    deleteButton.textContent = "🗑️";
 
     deleteButton.className =
         "delete-button";
@@ -245,17 +204,11 @@ function createMessageElement(item) {
     // Add Elements
     // ===============================
 
-    message.appendChild(
-        messageText
-    );
+    message.appendChild(messageText);
 
-    message.appendChild(
-        messageBottom
-    );
+    message.appendChild(messageBottom);
 
-    message.appendChild(
-        deleteButton
-    );
+    message.appendChild(deleteButton);
 
     return message;
 }
@@ -268,9 +221,7 @@ function createMessageElement(item) {
 async function sendMessage() {
 
     const input =
-        document.getElementById(
-            "message"
-        );
+        document.getElementById("message");
 
     const text =
         input.value.trim();
@@ -281,46 +232,40 @@ async function sendMessage() {
 
     if (!currentUser) {
 
-        alert(
-            "Please enter your name first."
-        );
+        alert("Please enter your name first.");
 
         return;
     }
 
+
     try {
 
-        socket.emit(
-            "stopTyping"
-        );
+        socket.emit("stopTyping");
 
         const response =
-            await fetch(
-                "/api/messages",
-                {
+            await fetch("/api/messages", {
 
-                    method: "POST",
+                method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-                    body: JSON.stringify({
+                body: JSON.stringify({
 
-                        sender:
-                            currentUser,
+                    sender: currentUser,
 
-                        message:
-                            text
+                    message: text
 
-                    })
+                })
 
-                }
-            );
+            });
+
 
         const data =
             await response.json();
+
 
         if (data.success) {
 
@@ -333,8 +278,9 @@ async function sendMessage() {
 
             clearTypingIndicator();
 
-        }
-        else {
+            input.focus();
+
+        } else {
 
             console.error(
                 "Message was not saved:",
@@ -352,7 +298,6 @@ async function sendMessage() {
         );
 
     }
-
 }
 
 
@@ -374,6 +319,7 @@ async function deleteMessage(
         return;
     }
 
+
     try {
 
         const response =
@@ -384,15 +330,16 @@ async function deleteMessage(
                 }
             );
 
+
         const data =
             await response.json();
+
 
         if (data.success) {
 
             messageElement.remove();
 
-        }
-        else {
+        } else {
 
             console.error(
                 "Delete failed:",
@@ -410,7 +357,6 @@ async function deleteMessage(
         );
 
     }
-
 }
 
 
@@ -424,7 +370,6 @@ function markMessageAsRead(messageId) {
         "messageRead",
         messageId
     );
-
 }
 
 
@@ -438,70 +383,56 @@ async function loadMessages() {
         return;
     }
 
+
     try {
 
         const response =
-            await fetch(
-                "/api/messages"
-            );
+            await fetch("/api/messages");
 
         const messages =
             await response.json();
 
+
         const chatBox =
-            document.getElementById(
-                "chat-box"
-            );
+            document.getElementById("chat-box");
 
         chatBox.innerHTML = "";
 
-        messages.forEach(
-            (item) => {
 
-                const messageElement =
-                    createMessageElement(
-                        item
+        messages.forEach(function(item) {
+
+            const messageElement =
+                createMessageElement(item);
+
+            chatBox.appendChild(messageElement);
+
+
+            // Other user's message
+            if (item.sender !== currentUser) {
+
+                // Mark delivered
+                if (item.status === "sent") {
+
+                    socket.emit(
+                        "messageDelivered",
+                        item._id
                     );
 
-                chatBox.appendChild(
-                    messageElement
-                );
+                }
 
+                // Mark read
+                if (item.status !== "read") {
 
-                // Other user's message
-                if (
-                    item.sender !== currentUser
-                ) {
-
-                    // First mark delivered
-                    if (
-                        item.status ===
-                        "sent"
-                    ) {
-
-                        socket.emit(
-                            "messageDelivered",
-                            item._id
-                        );
-
-                    }
-
-                    // Then mark read
-                    if (
-                        item.status !==
-                        "read"
-                    ) {
-
-                        markMessageAsRead(
-                            item._id
-                        );
-
-                    }
+                    markMessageAsRead(
+                        item._id
+                    );
 
                 }
 
             }
-        );
+
+        });
+
 
         chatBox.scrollTop =
             chatBox.scrollHeight;
@@ -515,7 +446,6 @@ async function loadMessages() {
         );
 
     }
-
 }
 
 
@@ -525,47 +455,44 @@ async function loadMessages() {
 
 socket.on(
     "receiveMessage",
-    function (item) {
+    function(item) {
 
         if (!currentUser) {
             return;
         }
 
-        const chatBox =
-            document.getElementById(
-                "chat-box"
-            );
 
-        // Prevent duplicate own message
+        const chatBox =
+            document.getElementById("chat-box");
+
+
+        // Prevent duplicate messages
         const existingMessage =
             document.querySelector(
                 `[data-message-id="${item._id}"]`
             );
 
+
         if (existingMessage) {
             return;
         }
 
+
         const messageElement =
-            createMessageElement(
-                item
-            );
+            createMessageElement(item);
+
 
         chatBox.appendChild(
             messageElement
         );
 
+
         chatBox.scrollTop =
             chatBox.scrollHeight;
 
 
-        // ===============================
-        // Received Message
-        // ===============================
-
-        if (
-            item.sender !== currentUser
-        ) {
+        // Received message
+        if (item.sender !== currentUser) {
 
             // Delivered
             socket.emit(
@@ -573,17 +500,15 @@ socket.on(
                 item._id
             );
 
+
             // Read
-            setTimeout(
-                function () {
+            setTimeout(function() {
 
-                    markMessageAsRead(
-                        item._id
-                    );
+                markMessageAsRead(
+                    item._id
+                );
 
-                },
-                300
-            );
+            }, 300);
 
         }
 
@@ -592,37 +517,38 @@ socket.on(
 
 
 // ===============================
-// Message Status Update
+// Message Status
 // ===============================
 
 socket.on(
     "messageStatus",
-    function (data) {
+    function(data) {
 
         const messageElement =
             document.querySelector(
                 `[data-message-id="${data.messageId}"]`
             );
 
+
         if (!messageElement) {
             return;
         }
+
 
         const statusElement =
             messageElement.querySelector(
                 ".message-status"
             );
 
+
         if (!statusElement) {
             return;
         }
 
-        if (
-            data.status === "delivered"
-        ) {
 
-            statusElement.textContent =
-                "✓✓";
+        if (data.status === "delivered") {
+
+            statusElement.textContent = "✓✓";
 
             statusElement.classList.remove(
                 "read"
@@ -630,12 +556,10 @@ socket.on(
 
         }
 
-        if (
-            data.status === "read"
-        ) {
 
-            statusElement.textContent =
-                "✓✓";
+        if (data.status === "read") {
+
+            statusElement.textContent = "✓✓";
 
             statusElement.classList.add(
                 "read"
@@ -648,18 +572,20 @@ socket.on(
 
 
 // ===============================
-// Connection
+// Socket Connection
 // ===============================
 
 socket.on(
     "connect",
-    function () {
+    function() {
 
         console.log(
             "Connected to server:",
             socket.id
         );
 
+        // If user already entered their name
+        // and connection reconnects
         if (currentUser) {
 
             socket.emit(
@@ -679,11 +605,9 @@ socket.on(
 
 socket.on(
     "onlineUsers",
-    function (users) {
+    function(users) {
 
-        updateOnlineStatus(
-            users
-        );
+        updateOnlineStatus(users);
 
     }
 );
@@ -700,19 +624,22 @@ let isTyping = false;
 
 function startTyping() {
 
+    if (!currentUser) {
+        return;
+    }
+
+
     if (!isTyping) {
 
         isTyping = true;
 
-        socket.emit(
-            "typing"
-        );
+        socket.emit("typing");
 
     }
 
-    clearTimeout(
-        typingTimer
-    );
+
+    clearTimeout(typingTimer);
+
 
     typingTimer =
         setTimeout(
@@ -729,15 +656,12 @@ function stopTyping() {
 
         isTyping = false;
 
-        socket.emit(
-            "stopTyping"
-        );
+        socket.emit("stopTyping");
 
     }
 
-    clearTimeout(
-        typingTimer
-    );
+
+    clearTimeout(typingTimer);
 
     clearTypingIndicator();
 
@@ -751,24 +675,29 @@ function clearTypingIndicator() {
             "typing-indicator"
         );
 
+
     if (indicator) {
 
-        indicator.textContent =
-            "";
+        indicator.textContent = "";
 
     }
 
 }
 
 
+// ===============================
+// Someone Is Typing
+// ===============================
+
 socket.on(
     "userTyping",
-    function (username) {
+    function(username) {
 
         const indicator =
             document.getElementById(
                 "typing-indicator"
             );
+
 
         if (indicator) {
 
@@ -781,9 +710,13 @@ socket.on(
 );
 
 
+// ===============================
+// Someone Stopped Typing
+// ===============================
+
 socket.on(
     "userStoppedTyping",
-    function () {
+    function() {
 
         clearTypingIndicator();
 
@@ -792,17 +725,16 @@ socket.on(
 
 
 // ===============================
-// Input
+// Message Input
 // ===============================
 
 const messageInput =
-    document.getElementById(
-        "message"
-    );
+    document.getElementById("message");
+
 
 messageInput.addEventListener(
     "input",
-    function () {
+    function() {
 
         if (
             messageInput.value.trim() === ""
@@ -810,8 +742,7 @@ messageInput.addEventListener(
 
             stopTyping();
 
-        }
-        else {
+        } else {
 
             startTyping();
 
@@ -822,16 +753,14 @@ messageInput.addEventListener(
 
 
 // ===============================
-// Enter to Send
+// Enter To Send
 // ===============================
 
 messageInput.addEventListener(
     "keydown",
-    function (event) {
+    function(event) {
 
-        if (
-            event.key === "Enter"
-        ) {
+        if (event.key === "Enter") {
 
             event.preventDefault();
 
@@ -844,21 +773,18 @@ messageInput.addEventListener(
 
 
 // ===============================
-// Username Enter Key
+// Username Input
 // ===============================
 
 const usernameInput =
-    document.getElementById(
-        "username"
-    );
+    document.getElementById("username");
+
 
 usernameInput.addEventListener(
     "keydown",
-    function (event) {
+    function(event) {
 
-        if (
-            event.key === "Enter"
-        ) {
+        if (event.key === "Enter") {
 
             event.preventDefault();
 
@@ -871,19 +797,31 @@ usernameInput.addEventListener(
 
 
 // ===============================
-// Page Load
+// IMPORTANT
+// Always Show Name Screen
 // ===============================
 
-if (currentUser) {
+window.addEventListener(
+    "load",
+    function() {
 
-    document.getElementById(
-        "name-screen"
-    ).style.display = "none";
+        currentUser = "";
 
-    document.getElementById(
-        "chat-container"
-    ).style.display = "flex";
+        document.getElementById(
+            "name-screen"
+        ).style.display = "flex";
 
-    loadMessages();
+        document.getElementById(
+            "chat-container"
+        ).style.display = "none";
 
-}
+        document.getElementById(
+            "username"
+        ).value = "";
+
+        document.getElementById(
+            "username"
+        ).focus();
+
+    }
+);
