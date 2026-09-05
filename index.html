@@ -2,33 +2,50 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>My Chat App</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
-    <!-- =========================
-         Name Screen
-    ========================== -->
 
-    <div id="name-screen" class="name-screen">
+    <!-- =================================
+         NAME SCREEN
+    ================================== -->
+
+    <div
+        id="name-screen"
+        class="name-screen"
+    >
 
         <div class="name-box">
 
             <h1>My Chat App</h1>
 
-            <p>Enter your name to start chatting</p>
+            <p>
+                Enter your name to start chatting
+            </p>
 
             <input
                 type="text"
                 id="username"
                 placeholder="Enter your name"
                 maxlength="30"
+                autocomplete="off"
             >
 
             <button onclick="startChat()">
@@ -40,9 +57,10 @@
     </div>
 
 
-    <!-- =========================
-         Chat Screen
-    ========================== -->
+
+    <!-- =================================
+         CHAT SCREEN
+    ================================== -->
 
     <div
         class="chat-container"
@@ -50,24 +68,74 @@
         style="display: none;"
     >
 
+
+        <!-- =================================
+             HEADER
+        ================================== -->
+
         <div class="chat-header">
 
-            <h1>My Chat App</h1>
+            <div class="header-title">
 
-            <p id="online-status">
-                Connecting...
-            </p>
+                <h1>
+                    My Chat App
+                </h1>
+
+                <p id="online-status">
+                    Connecting...
+                </p>
+
+            </div>
+
+
+            <!-- Dark Mode -->
+
+            <button
+                id="theme-toggle"
+                class="theme-toggle"
+                onclick="toggleDarkMode()"
+                title="Toggle dark mode"
+            >
+                🌙
+            </button>
 
         </div>
 
 
-        <div id="chat-box">
-        </div>
+
+        <!-- =================================
+             CHAT MESSAGES
+        ================================== -->
+
+        <div id="chat-box"></div>
 
 
-        <div id="typing-indicator">
-        </div>
 
+        <!-- =================================
+             NEW MESSAGE BUTTON
+        ================================== -->
+
+        <button
+            id="new-message-button"
+            class="new-message-button"
+            onclick="scrollToBottom()"
+        >
+            ↓ New message
+        </button>
+
+
+
+        <!-- =================================
+             TYPING INDICATOR
+        ================================== -->
+
+        <div id="typing-indicator"></div>
+
+
+
+        <!-- =================================
+             INPUT AREA
+        ================================== -->
 
         <div class="input-area">
 
@@ -75,6 +143,8 @@
                 type="text"
                 id="message"
                 placeholder="Type a message..."
+                maxlength="1000"
+                autocomplete="off"
             >
 
             <button onclick="sendMessage()">
@@ -83,11 +153,19 @@
 
         </div>
 
+
     </div>
 
 
+
+    <!-- =================================
+         SOCKET.IO
+    ================================== -->
+
     <script src="/socket.io/socket.io.js"></script>
+
     <script src="script.js"></script>
+
 
 </body>
 

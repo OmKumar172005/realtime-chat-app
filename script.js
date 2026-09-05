@@ -1,64 +1,133 @@
+// =========================================
+// SOCKET CONNECTION
+// =========================================
+
 const socket = io({
     transports: ["websocket"]
 });
 
+
 let currentUser = "";
+
 let typingTimer;
+
 let isTyping = false;
 
+let isNearBottom = true;
 
-// ===============================
-// Generate Avatar Initial
-// ===============================
+
+// =========================================
+// INITIALIZE
+// =========================================
+
+window.addEventListener("load", function () {
+
+    currentUser = "";
+
+    document.getElementById("name-screen").style.display = "flex";
+
+    document.getElementById("chat-container").style.display = "none";
+
+    document.getElementById("username").value = "";
+
+    document.getElementById("username").focus();
+
+    loadDarkMode();
+
+});
+
+
+// =========================================
+// AVATAR / INITIAL
+// =========================================
 
 function getInitial(name) {
+
     return name.charAt(0).toUpperCase();
+
 }
 
 
-// ===============================
-// Start Chat
-// ===============================
+// =========================================
+// START CHAT
+// =========================================
 
 function startChat() {
 
-    const usernameInput = document.getElementById("username");
-    const username = usernameInput.value.trim();
+    const usernameInput =
+        document.getElementById("username");
+
+    const username =
+        usernameInput.value.trim();
+
 
     if (username === "") {
+
         alert("Please enter your name.");
+
         return;
     }
+
+
+    if (username.length < 1) {
+
+        alert("Invalid username.");
+
+        return;
+    }
+
 
     currentUser = username;
 
+
     document.getElementById("name-screen").style.display = "none";
+
     document.getElementById("chat-container").style.display = "flex";
 
-    socket.emit("setUser", currentUser);
+
+    socket.emit(
+        "setUser",
+        currentUser
+    );
+
 
     loadMessages();
 
+
     document.getElementById("message").focus();
+
+
+    requestNotificationPermission();
+
 }
 
 
-// ===============================
-// Online Status
-// ===============================
+// =========================================
+// ONLINE STATUS
+// =========================================
 
 function updateOnlineStatus(users) {
 
-    const status = document.getElementById("online-status");
+    const status =
+        document.getElementById("online-status");
+
 
     if (!currentUser) {
-        status.textContent = "Enter your name to chat";
+
+        status.textContent =
+            "Enter your name to chat";
+
         return;
     }
 
-    const otherUsers = users.filter(function(user) {
-        return user !== currentUser;
-    });
+
+    const otherUsers =
+        users.filter(function (user) {
+
+            return user !== currentUser;
+
+        });
+
 
     if (otherUsers.length > 0) {
 
@@ -67,224 +136,313 @@ function updateOnlineStatus(users) {
              ${otherUsers.join(", ")}
              ${otherUsers.length === 1 ? "is" : "are"} online`;
 
-        status.classList.add("online");
-
     } else {
 
         status.innerHTML =
             `<span class="offline-dot"></span>
              No other user online`;
-
-        status.classList.remove("online");
     }
 }
 
 
-// ===============================
-// Create Message Element
-// ===============================
+// =========================================
+// CREATE MESSAGE
+// =========================================
 
 function createMessageElement(item) {
 
-    const message = document.createElement("div");
-
-    message.dataset.messageId = item._id;
-
-    const isOwnMessage = item.sender === currentUser;
-
-    message.className = isOwnMessage
-        ? "message sent"
-        : "message received";
+    const message =
+        document.createElement("div");
 
 
-    // ===============================
-    // Avatar
-    // ===============================
-
-    const avatar = document.createElement("div");
-
-    avatar.className = "message-avatar";
-
-    avatar.textContent = getInitial(item.sender);
+    message.dataset.messageId =
+        item._id;
 
 
-    // ===============================
-    // Message Content
-    // ===============================
-
-    const content = document.createElement("div");
-
-    content.className = "message-content";
+    const isOwnMessage =
+        item.sender === currentUser;
 
 
-    // ===============================
-    // Sender Name
-    // ===============================
-
-    const senderName = document.createElement("div");
-
-    senderName.className = "sender-name";
-
-    senderName.textContent = isOwnMessage
-        ? "You"
-        : item.sender;
+    message.className =
+        isOwnMessage
+            ? "message sent"
+            : "message received";
 
 
-    // ===============================
-    // Message Text
-    // ===============================
+    // =====================================
+    // CONTENT
+    // =====================================
 
-    const messageText = document.createElement("div");
-
-    messageText.className = "message-text";
-
-    messageText.textContent = item.message;
+    const content =
+        document.createElement("div");
 
 
-    // ===============================
-    // Message Bottom
-    // ===============================
-
-    const messageBottom = document.createElement("div");
-
-    messageBottom.className = "message-bottom";
+    content.className =
+        "message-content";
 
 
-    // ===============================
-    // Time
-    // ===============================
+    // =====================================
+    // USERNAME
+    // =====================================
 
-    const time = new Date(item.createdAt);
-
-    const formattedTime = time.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-
-    const messageTime = document.createElement("span");
-
-    messageTime.className = "message-time";
-
-    messageTime.textContent = formattedTime;
-
-    messageBottom.appendChild(messageTime);
+    const senderName =
+        document.createElement("div");
 
 
-    // ===============================
-    // Delivery / Read Status
-    // ===============================
+    senderName.className =
+        "sender-name";
+
+
+    senderName.textContent =
+        item.sender;
+
+
+    // =====================================
+    // MESSAGE
+    // =====================================
+
+    const messageText =
+        document.createElement("div");
+
+
+    messageText.className =
+        "message-text";
+
+
+    messageText.textContent =
+        item.message;
+
+
+    // =====================================
+    // BOTTOM DETAILS
+    // =====================================
+
+    const messageBottom =
+        document.createElement("div");
+
+
+    messageBottom.className =
+        "message-bottom";
+
+
+    // =====================================
+    // TIME
+    // =====================================
+
+    const time =
+        new Date(item.createdAt);
+
+
+    const formattedTime =
+        time.toLocaleTimeString([], {
+
+            hour: "2-digit",
+
+            minute: "2-digit"
+
+        });
+
+
+    const messageTime =
+        document.createElement("span");
+
+
+    messageTime.className =
+        "message-time";
+
+
+    messageTime.textContent =
+        formattedTime;
+
+
+    messageBottom.appendChild(
+        messageTime
+    );
+
+
+    // =====================================
+    // DELIVERY / READ
+    // =====================================
 
     if (isOwnMessage) {
 
-        const messageStatus = document.createElement("span");
+        const messageStatus =
+            document.createElement("span");
 
-        messageStatus.className = "message-status";
+
+        messageStatus.className =
+            "message-status";
+
 
         if (item.status === "read") {
 
-            messageStatus.textContent = "✓✓";
+            messageStatus.textContent =
+                "✓✓";
 
-            messageStatus.classList.add("read");
+            messageStatus.classList.add(
+                "read"
+            );
 
-        } else if (item.status === "delivered") {
+        } else if (
+            item.status === "delivered"
+        ) {
 
-            messageStatus.textContent = "✓✓";
+            messageStatus.textContent =
+                "✓✓";
 
         } else {
 
-            messageStatus.textContent = "✓";
+            messageStatus.textContent =
+                "✓";
         }
 
-        messageBottom.appendChild(messageStatus);
+
+        messageBottom.appendChild(
+            messageStatus
+        );
     }
 
 
-    // ===============================
-    // Delete Button
-    // Only Own Messages
-    // ===============================
+    // =====================================
+    // DELETE
+    // =====================================
 
     if (isOwnMessage) {
 
-        const deleteButton = document.createElement("button");
+        const deleteButton =
+            document.createElement("button");
 
-        deleteButton.textContent = "🗑";
 
-        deleteButton.className = "delete-button";
+        deleteButton.textContent =
+            "🗑";
 
-        deleteButton.title = "Delete message";
 
-        deleteButton.onclick = function() {
+        deleteButton.className =
+            "delete-button";
 
-            deleteMessage(
-                item._id,
-                message
-            );
 
-        };
+        deleteButton.title =
+            "Delete message";
 
-        message.appendChild(deleteButton);
+
+        deleteButton.onclick =
+            function () {
+
+                deleteMessage(
+                    item._id,
+                    message
+                );
+
+            };
+
+
+        message.appendChild(
+            deleteButton
+        );
     }
 
 
-    // ===============================
-    // Assemble Message
-    // ===============================
+    // =====================================
+    // ASSEMBLE
+    // =====================================
 
-    content.appendChild(senderName);
+    content.appendChild(
+        senderName
+    );
 
-    content.appendChild(messageText);
 
-    content.appendChild(messageBottom);
+    content.appendChild(
+        messageText
+    );
 
-    message.appendChild(avatar);
 
-    message.appendChild(content);
+    content.appendChild(
+        messageBottom
+    );
+
+
+    message.appendChild(
+        content
+    );
+
 
     return message;
 }
 
 
-// ===============================
-// Send Message
-// ===============================
+// =========================================
+// SEND MESSAGE
+// =========================================
 
 async function sendMessage() {
 
-    const input = document.getElementById("message");
+    const input =
+        document.getElementById("message");
 
-    const text = input.value.trim();
+
+    const text =
+        input.value.trim();
+
 
     if (text === "") {
+
         return;
     }
+
 
     if (!currentUser) {
 
-        alert("Please enter your name first.");
+        alert(
+            "Please enter your name first."
+        );
 
         return;
     }
+
+
+    if (text.length > 1000) {
+
+        alert(
+            "Message is too long."
+        );
+
+        return;
+    }
+
 
     try {
 
         stopTyping();
 
-        const response = await fetch("/api/messages", {
 
-            method: "POST",
+        const response =
+            await fetch(
+                "/api/messages",
+                {
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                    method: "POST",
 
-            body: JSON.stringify({
-                sender: currentUser,
-                message: text
-            })
-        });
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-        const data = await response.json();
+                    body: JSON.stringify({
+
+                        sender:
+                            currentUser,
+
+                        message:
+                            text
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
 
         if (data.success) {
 
@@ -293,9 +451,12 @@ async function sendMessage() {
                 data.message
             );
 
+
             input.value = "";
 
+
             input.focus();
+
 
         } else {
 
@@ -304,6 +465,7 @@ async function sendMessage() {
                 data.error
             );
         }
+
 
     } catch (error) {
 
@@ -315,30 +477,41 @@ async function sendMessage() {
 }
 
 
-// ===============================
-// Delete Message
-// ===============================
+// =========================================
+// DELETE MESSAGE
+// =========================================
 
-async function deleteMessage(messageId, messageElement) {
+async function deleteMessage(
+    messageId,
+    messageElement
+) {
 
-    const confirmDelete = confirm(
-        "Delete this message?"
-    );
+    const confirmDelete =
+        confirm(
+            "Delete this message?"
+        );
+
 
     if (!confirmDelete) {
+
         return;
     }
 
+
     try {
 
-        const response = await fetch(
-            `/api/messages/${messageId}`,
-            {
-                method: "DELETE"
-            }
-        );
+        const response =
+            await fetch(
+                `/api/messages/${messageId}`,
+                {
+                    method: "DELETE"
+                }
+            );
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         if (data.success) {
 
@@ -346,11 +519,16 @@ async function deleteMessage(messageId, messageElement) {
                 "message-removing"
             );
 
-            setTimeout(function() {
 
-                messageElement.remove();
+            setTimeout(
+                function () {
 
-            }, 200);
+                    messageElement.remove();
+
+                },
+                200
+            );
+
 
         } else {
 
@@ -359,6 +537,7 @@ async function deleteMessage(messageId, messageElement) {
                 data.error
             );
         }
+
 
     } catch (error) {
 
@@ -370,76 +549,82 @@ async function deleteMessage(messageId, messageElement) {
 }
 
 
-// ===============================
-// Mark Message As Read
-// ===============================
-
-function markMessageAsRead(messageId) {
-
-    socket.emit(
-        "messageRead",
-        messageId
-    );
-}
-
-
-// ===============================
-// Load Previous Messages
-// ===============================
+// =========================================
+// LOAD MESSAGES
+// =========================================
 
 async function loadMessages() {
 
     if (!currentUser) {
+
         return;
     }
+
 
     try {
 
         const response =
-            await fetch("/api/messages");
+            await fetch(
+                "/api/messages"
+            );
+
 
         const messages =
             await response.json();
 
+
         const chatBox =
-            document.getElementById("chat-box");
+            document.getElementById(
+                "chat-box"
+            );
+
 
         chatBox.innerHTML = "";
 
-        messages.forEach(function(item) {
 
-            const messageElement =
-                createMessageElement(item);
+        messages.forEach(
+            function (item) {
 
-            chatBox.appendChild(
-                messageElement
-            );
+                const messageElement =
+                    createMessageElement(item);
 
-            // Handle messages from other users
-            if (item.sender !== currentUser) {
 
-                // Mark as delivered
-                if (item.status === "sent") {
+                chatBox.appendChild(
+                    messageElement
+                );
 
-                    socket.emit(
-                        "messageDelivered",
-                        item._id
-                    );
+
+                if (
+                    item.sender !== currentUser
+                ) {
+
+                    if (
+                        item.status === "sent"
+                    ) {
+
+                        socket.emit(
+                            "messageDelivered",
+                            item._id
+                        );
+                    }
+
+
+                    if (
+                        item.status !== "read"
+                    ) {
+
+                        markMessageAsRead(
+                            item._id
+                        );
+                    }
                 }
 
-                // Mark as read
-                if (item.status !== "read") {
-
-                    markMessageAsRead(
-                        item._id
-                    );
-                }
             }
+        );
 
-        });
 
-        chatBox.scrollTop =
-            chatBox.scrollHeight;
+        scrollToBottom();
+
 
     } catch (error) {
 
@@ -451,95 +636,144 @@ async function loadMessages() {
 }
 
 
-// ===============================
-// Receive Real-Time Message
-// ===============================
+// =========================================
+// RECEIVE REAL-TIME MESSAGE
+// =========================================
 
 socket.on(
     "receiveMessage",
-    function(item) {
+    function (item) {
 
         if (!currentUser) {
+
             return;
         }
 
+
         const chatBox =
-            document.getElementById("chat-box");
+            document.getElementById(
+                "chat-box"
+            );
+
 
         const existingMessage =
             document.querySelector(
                 `[data-message-id="${item._id}"]`
             );
 
-        // Prevent duplicate messages
+
         if (existingMessage) {
+
             return;
         }
 
+
         const messageElement =
             createMessageElement(item);
+
 
         chatBox.appendChild(
             messageElement
         );
 
-        chatBox.scrollTop =
-            chatBox.scrollHeight;
+
+        const fromOtherUser =
+            item.sender !== currentUser;
 
 
-        // If message is from another user
-        if (item.sender !== currentUser) {
+        if (fromOtherUser) {
 
-            // Mark delivered
             socket.emit(
                 "messageDelivered",
                 item._id
             );
 
-            // Mark read shortly after
-            setTimeout(function() {
 
-                markMessageAsRead(
-                    item._id
-                );
+            setTimeout(
+                function () {
 
-            }, 300);
+                    markMessageAsRead(
+                        item._id
+                    );
+
+                },
+                300
+            );
+
+
+            // Notification
+
+            showNewMessageNotification(
+                item
+            );
+
+            if (document.visibilityState !== "visible") {
+
+    unreadCount++;
+
+    updatePageTitle();
+}
+
+
+            // If user is not at bottom
+
+            if (!isNearBottom) {
+
+                showNewMessageButton();
+
+            } else {
+
+                scrollToBottom();
+
+            }
+
+        } else {
+
+            scrollToBottom();
         }
+
     }
 );
 
 
-// ===============================
-// Message Status Update
-// ===============================
+// =========================================
+// MESSAGE STATUS
+// =========================================
 
 socket.on(
     "messageStatus",
-    function(data) {
+    function (data) {
 
         const messageElement =
             document.querySelector(
                 `[data-message-id="${data.messageId}"]`
             );
 
+
         if (!messageElement) {
+
             return;
         }
+
 
         const statusElement =
             messageElement.querySelector(
                 ".message-status"
             );
 
+
         if (!statusElement) {
+
             return;
         }
 
 
-        // Delivered
-        if (data.status === "delivered") {
+        if (
+            data.status === "delivered"
+        ) {
 
-            statusElement.textContent = "✓✓";
+            statusElement.textContent =
+                "✓✓";
 
             statusElement.classList.remove(
                 "read"
@@ -547,33 +781,36 @@ socket.on(
         }
 
 
-        // Read
-        if (data.status === "read") {
+        if (
+            data.status === "read"
+        ) {
 
-            statusElement.textContent = "✓✓";
+            statusElement.textContent =
+                "✓✓";
 
             statusElement.classList.add(
                 "read"
             );
         }
+
     }
 );
 
 
-// ===============================
-// Socket Connection
-// ===============================
+// =========================================
+// SOCKET CONNECT
+// =========================================
 
 socket.on(
     "connect",
-    function() {
+    function () {
 
         console.log(
             "Connected to server:",
             socket.id
         );
 
-        // Restore username after reconnect
+
         if (currentUser) {
 
             socket.emit(
@@ -581,17 +818,18 @@ socket.on(
                 currentUser
             );
         }
+
     }
 );
 
 
-// ===============================
-// Online Users
-// ===============================
+// =========================================
+// ONLINE USERS
+// =========================================
 
 socket.on(
     "onlineUsers",
-    function(users) {
+    function (users) {
 
         updateOnlineStatus(users);
 
@@ -599,29 +837,38 @@ socket.on(
 );
 
 
-// ===============================
-// Typing System
-// ===============================
+// =========================================
+// TYPING
+// =========================================
 
 function startTyping() {
 
     if (!currentUser) {
+
         return;
     }
+
 
     if (!isTyping) {
 
         isTyping = true;
 
-        socket.emit("typing");
+        socket.emit(
+            "typing"
+        );
     }
 
-    clearTimeout(typingTimer);
 
-    typingTimer = setTimeout(
-        stopTyping,
-        1500
+    clearTimeout(
+        typingTimer
     );
+
+
+    typingTimer =
+        setTimeout(
+            stopTyping,
+            1500
+        );
 }
 
 
@@ -631,52 +878,71 @@ function stopTyping() {
 
         isTyping = false;
 
-        socket.emit("stopTyping");
+        socket.emit(
+            "stopTyping"
+        );
     }
 
-    clearTimeout(typingTimer);
+
+    clearTimeout(
+        typingTimer
+    );
+
 
     clearTypingIndicator();
 }
 
 
-// ===============================
-// Typing Indicator
-// ===============================
+// =========================================
+// USER TYPING
+// =========================================
 
 socket.on(
     "userTyping",
-    function(username) {
+    function (username) {
 
         const indicator =
             document.getElementById(
                 "typing-indicator"
             );
 
+
         if (!indicator) {
+
             return;
         }
 
+
         indicator.innerHTML = `
-            <span>${username} is typing</span>
+            <span>
+                ${username} is typing
+            </span>
 
             <span class="typing-dots">
+
                 <i></i>
                 <i></i>
                 <i></i>
+
             </span>
         `;
+
 
         indicator.classList.add(
             "typing-active"
         );
+
     }
 );
 
 
+// =========================================
+// USER STOPPED TYPING
+// =========================================
+
 socket.on(
     "userStoppedTyping",
-    function() {
+    function () {
 
         clearTypingIndicator();
 
@@ -684,12 +950,17 @@ socket.on(
 );
 
 
+// =========================================
+// CLEAR TYPING
+// =========================================
+
 function clearTypingIndicator() {
 
     const indicator =
         document.getElementById(
             "typing-indicator"
         );
+
 
     if (indicator) {
 
@@ -702,16 +973,19 @@ function clearTypingIndicator() {
 }
 
 
-// ===============================
-// Message Input
-// ===============================
+// =========================================
+// INPUT EVENTS
+// =========================================
 
 const messageInput =
-    document.getElementById("message");
+    document.getElementById(
+        "message"
+    );
+
 
 messageInput.addEventListener(
     "input",
-    function() {
+    function () {
 
         if (
             messageInput.value.trim() === ""
@@ -723,73 +997,338 @@ messageInput.addEventListener(
 
             startTyping();
         }
+
     }
 );
 
 
-// ===============================
-// Enter To Send Message
-// ===============================
+// =========================================
+// ENTER TO SEND
+// =========================================
 
 messageInput.addEventListener(
     "keydown",
-    function(event) {
+    function (event) {
 
-        if (event.key === "Enter") {
+        if (
+            event.key === "Enter"
+        ) {
 
             event.preventDefault();
 
             sendMessage();
         }
+
     }
 );
 
 
-// ===============================
-// Username Input
-// ===============================
+// =========================================
+// USERNAME ENTER
+// =========================================
 
 const usernameInput =
-    document.getElementById("username");
+    document.getElementById(
+        "username"
+    );
+
 
 usernameInput.addEventListener(
     "keydown",
-    function(event) {
+    function (event) {
 
-        if (event.key === "Enter") {
+        if (
+            event.key === "Enter"
+        ) {
 
             event.preventDefault();
 
             startChat();
         }
+
     }
 );
 
 
-// ===============================
-// Always Ask Username On Page Load
-// ===============================
+// =========================================
+// CHAT SCROLL DETECTION
+// =========================================
 
-window.addEventListener(
-    "load",
-    function() {
+const chatBox =
+    document.getElementById(
+        "chat-box"
+    );
 
-        currentUser = "";
 
-        document.getElementById(
-            "name-screen"
-        ).style.display = "flex";
+chatBox.addEventListener(
+    "scroll",
+    function () {
 
-        document.getElementById(
-            "chat-container"
-        ).style.display = "none";
+        const distanceFromBottom =
+            chatBox.scrollHeight -
+            chatBox.scrollTop -
+            chatBox.clientHeight;
 
-        document.getElementById(
-            "username"
-        ).value = "";
 
-        document.getElementById(
-            "username"
-        ).focus();
+        isNearBottom =
+            distanceFromBottom < 100;
+
+
+        if (isNearBottom) {
+
+            hideNewMessageButton();
+        }
+
     }
 );
+
+
+// =========================================
+// SCROLL TO BOTTOM
+// =========================================
+
+function scrollToBottom() {
+
+    const chatBox =
+        document.getElementById(
+            "chat-box"
+        );
+
+
+    chatBox.scrollTo({
+
+        top:
+            chatBox.scrollHeight,
+
+        behavior:
+            "smooth"
+
+    });
+
+
+    isNearBottom = true;
+
+
+    hideNewMessageButton();
+}
+
+
+// =========================================
+// NEW MESSAGE BUTTON
+// =========================================
+
+function showNewMessageButton() {
+
+    const button =
+        document.getElementById(
+            "new-message-button"
+        );
+
+
+    button.classList.add(
+        "show"
+    );
+}
+
+
+function hideNewMessageButton() {
+
+    const button =
+        document.getElementById(
+            "new-message-button"
+        );
+
+
+    button.classList.remove(
+        "show"
+    );
+}
+
+
+// =========================================
+// BROWSER NOTIFICATION
+// =========================================
+
+function requestNotificationPermission() {
+
+    if (
+        "Notification" in window &&
+        Notification.permission === "default"
+    ) {
+
+        Notification.requestPermission();
+    }
+}
+
+
+function showNewMessageNotification(item) {
+
+    // Do not show notification
+    // if browser tab is active
+
+    if (
+        document.visibilityState === "visible"
+    ) {
+
+        return;
+    }
+
+
+    if (
+        !("Notification" in window)
+    ) {
+
+        return;
+    }
+
+
+    if (
+        Notification.permission !== "granted"
+    ) {
+
+        return;
+    }
+
+
+    const notification =
+        new Notification(
+            `New message from ${item.sender}`,
+            {
+                body: item.message,
+
+                icon: ""
+            }
+        );
+
+
+    notification.onclick =
+        function () {
+
+            window.focus();
+
+        };
+}
+
+
+// =========================================
+// TAB TITLE NOTIFICATION
+// =========================================
+
+let unreadCount = 0;
+
+
+document.addEventListener(
+    "visibilitychange",
+    function () {
+
+        if (
+            document.visibilityState === "visible"
+        ) {
+
+            unreadCount = 0;
+
+            updatePageTitle();
+
+        }
+
+    }
+);
+
+
+function updatePageTitle() {
+
+    if (unreadCount > 0) {
+
+        document.title =
+            `(${unreadCount}) My Chat App`;
+
+    } else {
+
+        document.title =
+            "My Chat App";
+    }
+}
+
+
+// =========================================
+// DARK MODE
+// =========================================
+
+function toggleDarkMode() {
+
+    document.body.classList.toggle(
+        "dark-mode"
+    );
+
+
+    const isDark =
+        document.body.classList.contains(
+            "dark-mode"
+        );
+
+
+    localStorage.setItem(
+        "darkMode",
+        isDark
+            ? "enabled"
+            : "disabled"
+    );
+
+
+    updateThemeButton(
+        isDark
+    );
+}
+
+
+function loadDarkMode() {
+
+    const darkMode =
+        localStorage.getItem(
+            "darkMode"
+        );
+
+
+    if (
+        darkMode === "enabled"
+    ) {
+
+        document.body.classList.add(
+            "dark-mode"
+        );
+
+
+        updateThemeButton(
+            true
+        );
+
+    } else {
+
+        updateThemeButton(
+            false
+        );
+    }
+}
+
+
+function updateThemeButton(
+    isDark
+) {
+
+    const button =
+        document.getElementById(
+            "theme-toggle"
+        );
+
+
+    if (!button) {
+
+        return;
+    }
+
+
+    button.textContent =
+        isDark
+            ? "☀️"
+            : "🌙";
+}
