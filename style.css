@@ -1,1010 +1,599 @@
-/* =========================================
+/* =========================
    RESET
-========================================= */
+========================= */
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
-
-
-/* =========================================
-   VARIABLES
-========================================= */
-
-:root {
-
-    --primary: #6274e8;
-
-    --primary-dark: #5264d8;
-
-    --background: #f7f8fc;
-
-    --surface: #ffffff;
-
-    --text: #222222;
-
-    --secondary-text: #777777;
-
-    --border: #e1e4ec;
-
-    --sent: #6274e8;
-
-    --received: #ffffff;
-
-    --shadow: rgba(0, 0, 0, 0.08);
-}
-
-
-/* =========================================
-   DARK MODE VARIABLES
-========================================= */
-
-body.dark-mode {
-
-    --background: #15171c;
-
-    --surface: #20232a;
-
-    --text: #f1f1f1;
-
-    --secondary-text: #a7a9b1;
-
-    --border: #343741;
-
-    --received: #282c35;
-
-    --shadow: rgba(0, 0, 0, 0.25);
-}
-
-
-/* =========================================
-   PAGE
-========================================= */
 
 html,
 body {
-
     width: 100%;
     height: 100%;
-
-    overflow: hidden;
+    font-family: Arial, sans-serif;
 }
-
 
 body {
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    background: var(--background);
-
-    color: var(--text);
-
-    transition: background 0.25s ease;
-}
-
-
-/* =========================================
-   NAME SCREEN
-========================================= */
-
-.name-screen {
-
-    width: 100%;
-    height: 100vh;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-}
-
-
-.name-box {
-
-    width: 100%;
-    max-width: 420px;
-
-    background: var(--surface);
-
-    padding: 35px;
-
-    border-radius: 20px;
-
-    box-shadow:
-        0 10px 35px var(--shadow);
-
-    text-align: center;
-}
-
-
-.name-box h1 {
-
-    margin-bottom: 10px;
-
-    font-size: 30px;
-
-    color: var(--primary);
-}
-
-
-.name-box p {
-
-    margin-bottom: 25px;
-
-    color: var(--secondary-text);
-
-    font-size: 16px;
-}
-
-
-.name-box input {
-
-    width: 100%;
-
-    padding: 14px 16px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 10px;
-
-    font-size: 16px;
-
-    outline: none;
-
-    margin-bottom: 15px;
-
-    background: var(--background);
-
-    color: var(--text);
-}
-
-
-.name-box input:focus {
-
-    border-color: var(--primary);
-}
-
-
-.name-box button {
-
-    width: 100%;
-
-    padding: 14px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: var(--primary);
-
-    color: white;
-
-    font-size: 17px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-
-.name-box button:hover {
-
-    background: var(--primary-dark);
-}
-
-
-/* =========================================
-   CHAT CONTAINER
-========================================= */
-
-.chat-container {
-
-    width: 100%;
-
-    height: 100vh;
-
-    display: flex;
-
-    flex-direction: column;
-
-    background: var(--background);
-
+    background: #e8edf7;
     overflow: hidden;
 }
 
+/* =========================
+   NAME SCREEN
+========================= */
 
-/* =========================================
-   HEADER
-   FIXED
-========================================= */
+.name-screen {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #e8edf7, #dce4f5);
+}
+
+.name-box {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(20, 35, 70, 0.18);
+}
+
+.name-box h1 {
+    color: #172554;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.name-box p {
+    color: #64748b;
+    margin-bottom: 22px;
+}
+
+.name-box input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #dbe3f0;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 14px;
+}
+
+.name-box input:focus {
+    border-color: #4f46e5;
+}
+
+.name-box button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4f46e5, #2563eb);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* =========================
+   CHAT CONTAINER
+========================= */
+
+.chat-container {
+    width: 100%;
+    max-width: 1000px;
+    height: 100vh;
+    margin: auto;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* =========================
+   THICK HEADER
+========================= */
 
 .chat-header {
-
     flex-shrink: 0;
-
-    position: relative;
-
-    width: 100%;
-
-    height: 118px;
-
-    padding: 20px;
-
+    min-height: 88px;
+    padding: 18px 25px;
     display: flex;
-
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
 
-    background:
-        linear-gradient(
-            135deg,
-            #6275e8,
-            #734db0
-        );
+    background: linear-gradient(
+        135deg,
+        #172554,
+        #1e3a8a,
+        #4f46e5
+    );
 
     color: white;
 
-    text-align: center;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.25);
 }
-
 
 .header-title h1 {
-
-    font-size: 30px;
-
-    margin-bottom: 6px;
+    font-size: 25px;
+    font-weight: 700;
+    margin-bottom: 7px;
 }
-
 
 .header-title p {
-
-    font-size: 17px;
-
-    font-weight: 500;
+    font-size: 13px;
+    color: #dbeafe;
 }
-
-
-/* =========================================
-   DARK MODE BUTTON
-========================================= */
 
 .theme-toggle {
-
-    position: absolute;
-
-    right: 22px;
-
-    top: 50%;
-
-    transform: translateY(-50%);
-
-    width: 42px;
-
-    height: 42px;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background: rgba(255,255,255,0.18);
-
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.12);
     color: white;
-
-    font-size: 20px;
-
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-
-.theme-toggle:hover {
-
-    background: rgba(255,255,255,0.30);
-
-    transform:
-        translateY(-50%)
-        scale(1.08);
-}
-
-
-/* =========================================
-   ONLINE STATUS
-========================================= */
-
-#online-status {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 7px;
-}
-
-
-.online-dot,
-.offline-dot {
-
-    width: 9px;
-
-    height: 9px;
-
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-
-    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
 }
 
-
-.online-dot {
-
-    background: #4ade80;
-
-    box-shadow:
-        0 0 7px rgba(74,222,128,0.8);
-}
-
-
-.offline-dot {
-
-    background: #d1d5db;
-}
-
-
-/* =========================================
-   CHAT BOX
-   ONLY THIS AREA SCROLLS
-========================================= */
+/* =========================
+   CHAT AREA
+========================= */
 
 #chat-box {
-
     flex: 1;
-
     min-height: 0;
-
-    width: 100%;
-
-    padding: 20px 30px;
-
     overflow-y: auto;
 
-    overflow-x: hidden;
+    padding: 22px;
 
-    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    background: #f8fafc;
 }
 
-
-/* =========================================
-   SCROLLBAR
-========================================= */
-
-#chat-box::-webkit-scrollbar {
-
-    width: 7px;
-}
-
-
-#chat-box::-webkit-scrollbar-track {
-
-    background: transparent;
-}
-
-
-#chat-box::-webkit-scrollbar-thumb {
-
-    background: #bfc4d1;
-
-    border-radius: 10px;
-}
-
-
-/* =========================================
-   MESSAGE
-========================================= */
+/* =========================
+   MESSAGE BUBBLES
+========================= */
 
 .message {
-
     position: relative;
-
-    width: fit-content;
-
     max-width: 70%;
-
-    margin-bottom: 12px;
-
-    padding: 11px 14px;
-
-    border-radius: 14px;
-
-    animation:
-        messageAppear
-        0.2s
-        ease;
+    padding: 12px 15px;
+    border-radius: 15px;
+    word-wrap: break-word;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
-
-
-@keyframes messageAppear {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translateY(5px);
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform:
-            translateY(0);
-    }
-}
-
-
-/* =========================================
-   SENT
-========================================= */
 
 .message.sent {
+    align-self: flex-end;
 
-    margin-left: auto;
-
-    background: var(--sent);
+    background: linear-gradient(
+        135deg,
+        #4f46e5,
+        #2563eb
+    );
 
     color: white;
 
     border-bottom-right-radius: 4px;
 }
 
-
-/* =========================================
-   RECEIVED
-========================================= */
-
 .message.received {
+    align-self: flex-start;
 
-    margin-right: auto;
+    background: white;
+    color: #1e293b;
 
-    background: var(--received);
-
-    color: var(--text);
-
+    border: 1px solid #e2e8f0;
     border-bottom-left-radius: 4px;
-
-    border: 1px solid var(--border);
-
-    box-shadow:
-        0 2px 7px var(--shadow);
 }
-
-
-/* =========================================
-   MESSAGE CONTENT
-========================================= */
-
-.message-content {
-
-    min-width: 100px;
-
-    max-width: 100%;
-}
-
-
-/* =========================================
-   USERNAME
-========================================= */
 
 .sender-name {
-
-    font-size: 14px;
-
+    font-size: 12px;
     font-weight: bold;
-
-    margin-bottom: 4px;
-
-    opacity: 0.9;
-
-    word-break: break-word;
+    margin-bottom: 5px;
+    opacity: 0.75;
 }
-
-
-/* =========================================
-   MESSAGE TEXT
-========================================= */
 
 .message-text {
-
-    font-size: 16px;
-
-    line-height: 1.4;
-
-    word-break: break-word;
-
-    white-space: pre-wrap;
+    font-size: 15px;
+    line-height: 1.45;
 }
 
-
-/* =========================================
-   MESSAGE BOTTOM
-========================================= */
-
 .message-bottom {
-
     display: flex;
-
-    align-items: center;
-
     justify-content: flex-end;
-
-    gap: 5px;
-
+    align-items: center;
+    gap: 6px;
     margin-top: 6px;
 }
 
-
-/* =========================================
-   TIME
-========================================= */
-
 .message-time {
-
-    font-size: 11px;
-
+    font-size: 10px;
     opacity: 0.7;
-
-    white-space: nowrap;
 }
-
-
-/* =========================================
-   STATUS
-========================================= */
 
 .message-status {
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    opacity: 0.85;
+    font-size: 12px;
 }
-
 
 .message-status.read {
-
-    color: #72e6ff;
+    font-weight: bold;
 }
 
-
-/* =========================================
-   DELETE
-========================================= */
-
 .delete-button {
-
     position: absolute;
+    top: -9px;
+    right: -9px;
 
-    right: -38px;
-
-    top: 50%;
-
-    transform:
-        translateY(-50%);
-
-    width: 30px;
-
-    height: 30px;
+    width: 27px;
+    height: 27px;
 
     border: none;
+    border-radius: 50%;
 
-    background: transparent;
+    background: white;
+    color: #ef4444;
 
     cursor: pointer;
 
-    opacity: 0;
-
-    transition: 0.2s;
-
-    font-size: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
-
-
-.message:hover .delete-button {
-
-    opacity: 1;
-}
-
-
-.delete-button:hover {
-
-    transform:
-        translateY(-50%)
-        scale(1.1);
-}
-
-
-/* =========================================
-   DELETE ANIMATION
-========================================= */
 
 .message-removing {
-
     opacity: 0;
-
-    transform: translateX(20px);
-
+    transform: scale(0.9);
     transition: 0.2s;
 }
 
+/* =========================
+   INPUT AREA
+========================= */
 
-/* =========================================
-   TYPING INDICATOR
-========================================= */
-
-#typing-indicator {
-
+.input-area {
     flex-shrink: 0;
 
+    display: flex;
+    gap: 10px;
+
+    padding: 15px;
+
+    background: white;
+    border-top: 1px solid #e2e8f0;
+
+    box-shadow: 0 -3px 12px rgba(15, 23, 42, 0.06);
+}
+
+.input-area input {
+    flex: 1;
+    min-width: 0;
+
+    padding: 14px 15px;
+
+    border: 2px solid #e2e8f0;
+    border-radius: 11px;
+
+    outline: none;
+    font-size: 15px;
+
+    color: #1e293b;
+}
+
+.input-area input:focus {
+    border-color: #4f46e5;
+}
+
+.input-area button {
+    flex-shrink: 0;
+
+    padding: 14px 24px;
+
+    border: none;
+    border-radius: 11px;
+
+    background: linear-gradient(
+        135deg,
+        #4f46e5,
+        #2563eb
+    );
+
+    color: white;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* =========================
+   TYPING INDICATOR
+========================= */
+
+#typing-indicator {
+    flex-shrink: 0;
     min-height: 0;
 
-    padding: 0 30px;
+    padding: 0 18px;
 
-    font-size: 13px;
-
-    color: var(--secondary-text);
-
-    display: flex;
-
-    align-items: center;
+    font-size: 12px;
+    color: #64748b;
 }
 
-
-#typing-indicator.typing-active {
-
-    min-height: 30px;
+.typing-active {
+    padding-bottom: 7px !important;
 }
-
-
-/* =========================================
-   TYPING DOTS
-========================================= */
 
 .typing-dots {
-
-    display: inline-flex;
-
-    gap: 3px;
-
     margin-left: 5px;
 }
 
-
 .typing-dots i {
+    display: inline-block;
 
     width: 5px;
-
     height: 5px;
 
-    background: currentColor;
-
+    background: #4f46e5;
     border-radius: 50%;
 
-    animation:
-        typingAnimation
-        1.2s
-        infinite;
+    margin: 0 2px;
 }
 
+/* =========================
+   ONLINE / OFFLINE
+========================= */
 
-.typing-dots i:nth-child(2) {
+.online-dot,
+.offline-dot {
+    display: inline-block;
 
-    animation-delay: 0.2s;
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+    margin-right: 5px;
 }
 
-
-.typing-dots i:nth-child(3) {
-
-    animation-delay: 0.4s;
+.online-dot {
+    background: #22c55e;
 }
 
-
-@keyframes typingAnimation {
-
-    0%,
-    60%,
-    100% {
-
-        opacity: 0.3;
-
-        transform:
-            translateY(0);
-    }
-
-    30% {
-
-        opacity: 1;
-
-        transform:
-            translateY(-3px);
-    }
+.offline-dot {
+    background: #94a3b8;
 }
 
-
-/* =========================================
+/* =========================
    NEW MESSAGE BUTTON
-========================================= */
+========================= */
 
 .new-message-button {
+    display: none;
 
     position: absolute;
 
-    right: 25px;
+    bottom: 90px;
+    left: 50%;
 
-    bottom: 105px;
+    transform: translateX(-50%);
 
     z-index: 10;
 
-    display: none;
-
-    padding: 9px 14px;
-
     border: none;
-
     border-radius: 20px;
 
-    background: var(--primary);
+    padding: 9px 17px;
 
+    background: #4f46e5;
     color: white;
 
-    font-size: 13px;
-
+    font-size: 12px;
     font-weight: bold;
 
     cursor: pointer;
 
-    box-shadow:
-        0 4px 15px var(--shadow);
+    box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
 }
-
 
 .new-message-button.show {
-
     display: block;
-
-    animation:
-        messageAppear
-        0.2s
-        ease;
 }
 
+/* =========================
+   DARK MODE
+========================= */
 
-/* =========================================
-   INPUT AREA
-   FIXED
-========================================= */
-
-.input-area {
-
-    flex-shrink: 0;
-
-    width: 100%;
-
-    padding: 14px 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    background: var(--surface);
-
-    border-top: 1px solid var(--border);
+.dark-mode {
+    background: #0f172a;
 }
 
-
-/* =========================================
-   INPUT
-========================================= */
-
-#message {
-
-    flex: 1;
-
-    min-width: 0;
-
-    height: 62px;
-
-    padding: 0 20px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 14px;
-
-    outline: none;
-
-    font-size: 18px;
-
-    color: var(--text);
-
-    background: var(--background);
+.dark-mode .chat-container,
+.dark-mode #chat-box {
+    background: #0f172a;
 }
 
-
-#message:focus {
-
-    border-color: var(--primary);
-
-    box-shadow:
-        0 0 0 3px
-        rgba(98,116,232,0.12);
+.dark-mode .chat-header {
+    background: linear-gradient(
+        135deg,
+        #020617,
+        #172554,
+        #312e81
+    );
 }
 
+.dark-mode .message.received {
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: #334155;
+}
 
-/* =========================================
-   SEND BUTTON
-========================================= */
+.dark-mode .message.sent {
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #3b82f6
+    );
+}
 
-.input-area button {
+.dark-mode .input-area {
+    background: #1e293b;
+    border-color: #334155;
+}
 
-    flex-shrink: 0;
-
-    width: 110px;
-
-    height: 62px;
-
-    border: none;
-
-    border-radius: 13px;
-
-    background: var(--primary);
-
+.dark-mode .input-area input {
+    background: #0f172a;
     color: white;
-
-    font-size: 18px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: 0.2s;
+    border-color: #475569;
 }
 
-
-.input-area button:hover {
-
-    background: var(--primary-dark);
-
-    transform:
-        translateY(-1px);
+.dark-mode .input-area input::placeholder {
+    color: #94a3b8;
 }
 
+.dark-mode #typing-indicator {
+    color: #94a3b8;
+}
 
-/* =========================================
+.dark-mode .delete-button {
+    background: #1e293b;
+}
+
+.dark-mode .name-screen {
+    background: #0f172a;
+}
+
+.dark-mode .name-box {
+    background: #1e293b;
+    color: white;
+}
+
+.dark-mode .name-box h1 {
+    color: white;
+}
+
+.dark-mode .name-box p {
+    color: #94a3b8;
+}
+
+.dark-mode .name-box input {
+    background: #0f172a;
+    color: white;
+    border-color: #475569;
+}
+
+/* =========================
    MOBILE
-========================================= */
+========================= */
 
 @media (max-width: 600px) {
 
-    .chat-header {
-
-        height: 105px;
-
-        padding: 15px;
+    .chat-container {
+        width: 100%;
+        max-width: none;
+        height: 100dvh;
     }
 
+    /* Thick mobile header */
+    .chat-header {
+        min-height: 78px;
+        padding: 15px 14px;
+    }
 
     .header-title h1 {
-
-        font-size: 25px;
+        font-size: 20px;
+        margin-bottom: 5px;
     }
-
 
     .header-title p {
-
-        font-size: 15px;
+        font-size: 11px;
     }
-
 
     .theme-toggle {
-
-        right: 12px;
-
-        width: 36px;
-
-        height: 36px;
-
-        font-size: 17px;
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
     }
-
 
     #chat-box {
-
-        padding: 15px;
+        padding: 14px 10px;
+        gap: 9px;
     }
-
 
     .message {
-
-        max-width: 80%;
+        max-width: 82%;
+        padding: 10px 12px;
     }
 
+    .message-text {
+        font-size: 14px;
+    }
 
     .input-area {
-
-        padding: 10px;
-
-        gap: 8px;
+        padding: 9px;
+        gap: 7px;
     }
 
-
-    #message {
-
-        height: 54px;
-
-        padding: 0 15px;
-
-        font-size: 16px;
+    .input-area input {
+        padding: 12px;
+        font-size: 14px;
     }
-
 
     .input-area button {
-
-        width: 80px;
-
-        height: 54px;
-
-        font-size: 16px;
+        padding: 12px 16px;
+        font-size: 14px;
     }
-
-
-    .delete-button {
-
-        right: -30px;
-    }
-
 
     .new-message-button {
-
-        right: 15px;
-
-        bottom: 90px;
+        bottom: 73px;
     }
 
+    .name-box {
+        padding: 28px 20px;
+    }
 
-    #typing-indicator {
-
-        padding: 0 15px;
+    .name-box h1 {
+        font-size: 24px;
     }
 }
 
+/* =========================
+   SMALL PHONES
+========================= */
 
-/* =========================================
-   SMALL MOBILE
-========================================= */
+@media (max-width: 380px) {
 
-@media (max-width: 400px) {
-
-    .message {
-
-        max-width: 85%;
+    .chat-header {
+        min-height: 72px;
+        padding: 12px;
     }
 
+    .header-title h1 {
+        font-size: 18px;
+    }
+
+    .message {
+        max-width: 88%;
+    }
 
     .input-area button {
+        padding: 12px;
+    }
+}
 
-        width: 70px;
+/* =========================
+   LAPTOP / DESKTOP
+========================= */
+
+@media (min-width: 601px) {
+
+    .chat-container {
+        margin: 0 auto;
+        box-shadow: 0 0 30px rgba(15, 23, 42, 0.15);
     }
 }
